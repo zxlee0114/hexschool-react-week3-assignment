@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { Modal } from "bootstrap";
 
@@ -38,7 +38,7 @@ function App() {
     });
   };
 
-  const getProducts = async () => {
+  const getProducts = useCallback(async () => {
     try {
       const res = await axios.get(
         `${BASE_URL}/v2/api/${API_PATH}/admin/products`
@@ -48,7 +48,19 @@ function App() {
       console.log(error);
       alert("取得產品失敗");
     }
-  };
+  }, [setProducts]);
+
+  // const getProducts = async () => {
+  //   try {
+  //     const res = await axios.get(
+  //       `${BASE_URL}/v2/api/${API_PATH}/admin/products`
+  //     );
+  //     setProducts(res.data.products);
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("取得產品失敗");
+  //   }
+  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -70,7 +82,7 @@ function App() {
     }
   };
 
-  const checkUserLogin = async () => {
+  const checkUserLogin = useCallback(async () => {
     try {
       await axios.post(`${BASE_URL}/v2/api/user/check`);
       getProducts();
@@ -78,7 +90,17 @@ function App() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [getProducts, setIsAuth]);
+
+  // const checkUserLogin = async () => {
+  //   try {
+  //     await axios.post(`${BASE_URL}/v2/api/user/check`);
+  //     getProducts();
+  //     setIsAuth(true);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   useEffect(() => {
     const token = document.cookie.replace(
@@ -88,7 +110,7 @@ function App() {
     );
     axios.defaults.headers.common["Authorization"] = token;
     checkUserLogin();
-  }, []);
+  }, [checkUserLogin]);
 
   const productModalRef = useRef(null);
   const delProductModalRef = useRef(null);
